@@ -7,8 +7,6 @@ import shutil
 from ultralytics import YOLO
 import csv
 import pandas as pd
-import time
-
 
 app = Flask(__name__)
 
@@ -17,15 +15,17 @@ def home():
     return render_template('index.html')
 
 def create_folders(path):
-    folders = ['frame', 'fail', r'fail/' + path, 'noler', r'noler/' + path]
+    folders = ['frame', r'frame/' + path, 'fail', r'fail/' + path, 'noler', r'noler/' + path]
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    
+    # Вызываем функцию для создания папок
+
     video_file = request.files['video']
+
     video_path = os.path.join('uploads', video_file.filename)
     video_file.save(video_path)
 
@@ -47,45 +47,42 @@ def upload():
     timeF = 12
 
     i = 0
-    # Вызываем функцию для создания папок
-
     create_folders(path.name)
     print(path.name)
     while rval:
         rval, frame = vc.read()
         if (n % timeF == 0):
             i += 1
-            
+            print(i)
             cv2.imwrite(r'noler/'+path.name+'/{}.jpg'.format(i), frame)
         n = n + 1
         cv2.waitKey(1)
     vc.release()
-    print('ready noler')
-    source_folder = r'noler/'
+
+    source_folder = 'noler'
 
     # Путь к папке "frame"
-    destination_folder = r'frame/'
+    destination_folder = 'frame'
 
     # Получаем список всех файлов в папке "noler"
     files = os.listdir(source_folder)
-    print('files')
+
     # Переносим каждый файл из папки "noler" в папку "frame"
     for file_name in files:
         # Создаем полные пути к исходному и целевому файлам
         source_file = os.path.join(source_folder, file_name)
-        destination_file = os.path.join(destination_folder)
+        destination_file = os.path.join(destination_folder, file_name)
 
         # Переносим файл
         shutil.move(source_file, destination_file)
-    print('pereneseno')
-    results = model(r'frame/' + path.name, classes=1, show=False, visualize=False)
-    print(results,'<--- results',sep=' ')
-    
+
+    results = model('/Users/Dmitriy/PycharmProjects/pythonProject2/frame/' + path.name, classes=1, show=False, visualize=False)
+
     for r in results:
-        if not results:
-            results = [[r.verbose(), r.path]]
+        if not a:
+            a = [[r.verbose(), r.path]]
         else:
-            results += [[r.verbose(), r.path]]
+            a += [[r.verbose(), r.path]]
 
     for r, q in a:
         if "phone" in r:
@@ -94,17 +91,17 @@ def upload():
             else:
                 b += [q]
 
-    b = [x.split(r'frame/'+path.name)[1] for x in b]
-    path_s = r'frame/'+path.name
-    path_d = r'fail/'+path.name
+    b = [x.split('/Users/Dmitriy/PycharmProjects/pythonProject2/frame/'+path.name)[1] for x in b]
+    path_s = r'/Users/Dmitriy/PycharmProjects/pythonProject2/frame/'+path.name
+    path_d = r'/Users/Dmitriy/PycharmProjects/pythonProject2/fail/'+path.name
     for file in os.listdir(path_s):
         for s in b:
             if file == s:
-                shutil.copyfile(path_s, path_d)
+                shutil.copyfile(path_s + file, path_d + file)
     seco = np.array([])
     c = [(x[:-4]) for x in b]
     v = int(c[0])
-
+    import time
     sec = v
     ty_res = time.gmtime(sec)
     seco = [time.strftime("%H:%M:%S", ty_res)]
@@ -127,7 +124,7 @@ def upload():
     ]
 
     df = pd.DataFrame(data, columns=columns)
-    df.to_csv(r'/Users/Dmitriy/Desktop/pythonProject2/f.csv')
+    df.to_csv(r'/Users/Dmitriy/PycharmProjects/pythonProject2/f.csv')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
