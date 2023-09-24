@@ -1,13 +1,92 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Загрузка видео</title>
+  <title>Загрузка видео</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+
+    form {
+      width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    input[type="file"] {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #555;
+    }
+
+    #file-info {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #video-preview {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #video-preview video {
+      max-width: 50%;
+      height: auto;
+    }
+  </style>
 </head>
 <body>
-    <h1>Загрузка видео</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="video" accept="video/*">
-        <input type="submit" value="Загрузить">
-    </form>
+  <h1>Загрузка видео</h1>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="video" accept="video/*" onchange="showFileInfo(this); showVideoPreview(this)">
+    <input type="submit" value="Загрузить" id="upload-button" disabled>
+  </form>
+
+  <div id="file-info"></div>
+
+  <div id="video-preview"></div>
+
+  <script>
+    function showFileInfo(input) {
+      var fileInfo = document.getElementById("file-info");
+      fileInfo.innerHTML = "Выбран файл: " + input.files[0].name;
+
+      var uploadButton = document.getElementById("upload-button");
+      uploadButton.disabled = false;
+    }
+
+    function showVideoPreview(input) {
+      var videoPreview = document.getElementById("video-preview");
+      videoPreview.innerHTML = "";
+
+      var file = input.files[0];
+      var video = document.createElement("video");
+      video.src = URL.createObjectURL(file);
+      video.controls = true;
+
+      videoPreview.appendChild(video);
+    }
+  </script>
 </body>
 </html>
